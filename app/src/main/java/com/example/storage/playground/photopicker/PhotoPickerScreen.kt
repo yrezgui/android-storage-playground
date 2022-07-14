@@ -64,7 +64,10 @@ import com.example.storage.playground.ui.SdkExtensionDetails
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PhotoPickerScreen(navController: NavHostController, viewModel: PhotoPickerViewModel = viewModel()) {
+fun PhotoPickerScreen(
+    navController: NavHostController,
+    viewModel: PhotoPickerViewModel = viewModel()
+) {
     val state = viewModel.uiState
     val device = state.deviceInfo
 

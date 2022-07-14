@@ -18,12 +18,14 @@ package com.example.storage.playground
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Screens(val route: String, val label: String, val icon: ImageVector) {
     object PhotoPicker : Screens("photopicker", "Photo Picker", Icons.Outlined.PhotoLibrary)
     object DocsUI : Screens("docsui", "Docs UI", Icons.Outlined.Folder)
+    object LocalPicker : Screens("localpicker", "Local Picker", Icons.Outlined.PhoneAndroid)
 }
 
-val Routes = listOf(Screens.PhotoPicker, Screens.DocsUI)
+val Routes = listOf(Screens.PhotoPicker, Screens.DocsUI, Screens.LocalPicker)

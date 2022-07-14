@@ -27,6 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.storage.playground.docsui.DocsUiScreen
+import com.example.storage.playground.localpicker.LocalPickerScreen
 import com.example.storage.playground.photopicker.PhotoPickerScreen
 import com.example.storage.playground.ui.theme.StoragePlaygroundTheme
 
@@ -46,6 +47,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = startNavigation) {
                         composable(Screens.PhotoPicker.route) { PhotoPickerScreen(navController) }
                         composable(Screens.DocsUI.route) { DocsUiScreen(navController) }
+                        composable(Screens.LocalPicker.route) { LocalPickerScreen(navController) }
                     }
                 }
             }
