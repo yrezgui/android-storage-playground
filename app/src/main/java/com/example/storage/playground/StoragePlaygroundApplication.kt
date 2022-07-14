@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext {
-        compose_version = '1.1.1'
+package com.example.storage.playground
+
+import android.app.Application
+import coil.ImageLoader
+import coil.ImageLoaderFactory
+import coil.decode.VideoFrameDecoder
+
+class StoragePlaygroundApplication : Application(), ImageLoaderFactory {
+
+    override fun newImageLoader(): ImageLoader {
+        return ImageLoader.Builder(this)
+            .components {
+                add(VideoFrameDecoder.Factory())
+            }
+            .crossfade(true)
+            .build()
     }
-}
-
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    id 'com.android.application' version '7.2.1' apply false
-    id 'com.android.library' version '7.2.1' apply false
-    id 'org.jetbrains.kotlin.android' version '1.6.10' apply false
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }
