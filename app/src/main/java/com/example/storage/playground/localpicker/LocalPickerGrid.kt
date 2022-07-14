@@ -64,7 +64,7 @@ fun LocalPickerGrid(
     fun onClick(uri: Uri) {
         if (selectedItems.contains(uri)) {
             selectedItems = selectedItems - uri
-        } else if (selectedItems.size <= limit) {
+        } else if (selectedItems.size < limit) {
             selectedItems = selectedItems + uri
         }
     }
