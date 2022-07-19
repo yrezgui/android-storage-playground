@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground.ui.theme
+package com.samples.storage.playground.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

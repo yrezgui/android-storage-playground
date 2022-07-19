@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground
+package com.samples.storage.playground
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,10 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.storage.playground.docsui.DocsUiScreen
-import com.example.storage.playground.localpicker.LocalPickerScreen
-import com.example.storage.playground.photopicker.PhotoPickerScreen
-import com.example.storage.playground.ui.theme.StoragePlaygroundTheme
+import com.samples.storage.playground.docsui.DocsUiScreen
+import com.samples.storage.playground.localpicker.LocalPickerScreen
+import com.samples.storage.playground.photopicker.PhotoPickerScreen
+import com.samples.storage.playground.ui.theme.StoragePlaygroundTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground
+package com.samples.storage.playground
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder

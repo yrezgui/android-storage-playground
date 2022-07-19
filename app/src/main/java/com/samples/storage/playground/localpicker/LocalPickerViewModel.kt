@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground.localpicker
+package com.samples.storage.playground.localpicker
 
 import android.app.Application
 import android.content.Context
@@ -26,9 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.storage.playground.DeviceManager
-import com.example.storage.playground.DeviceManager.Companion.getDeviceInfo
-import com.example.storage.playground.localpicker.MediaRepository.FileType
+import com.samples.storage.playground.localpicker.MediaRepository.FileType
+import com.samples.storage.playground.DeviceManager
+import com.samples.storage.playground.DeviceManager.Companion.getDeviceInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch

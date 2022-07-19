@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground.ui
+package com.samples.storage.playground.ui
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -23,8 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.NavHostController
-import com.example.storage.playground.DeviceManager
-import com.example.storage.playground.Routes
+import com.samples.storage.playground.Routes
+import com.samples.storage.playground.DeviceManager
 
 @Composable
 fun ScreenTitle(title: String) {

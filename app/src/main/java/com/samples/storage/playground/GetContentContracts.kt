@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground
+package com.samples.storage.playground
 
 import android.app.Activity
 import android.content.Context

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground.localpicker
+package com.samples.storage.playground.localpicker
 
 import android.app.Activity
 import android.net.Uri
@@ -71,12 +71,12 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.storage.playground.localpicker.LocalPickerViewModel.Companion.PICKER_MAX_ITEMS_LIMIT
-import com.example.storage.playground.localpicker.MediaRepository.FileType
-import com.example.storage.playground.ui.AndroidDetails
-import com.example.storage.playground.ui.BottomNavigationBar
-import com.example.storage.playground.ui.ScreenTitle
-import com.example.storage.playground.ui.SdkExtensionDetails
+import com.samples.storage.playground.localpicker.LocalPickerViewModel.Companion.PICKER_MAX_ITEMS_LIMIT
+import com.samples.storage.playground.localpicker.MediaRepository.FileType
+import com.samples.storage.playground.ui.AndroidDetails
+import com.samples.storage.playground.ui.BottomNavigationBar
+import com.samples.storage.playground.ui.ScreenTitle
+import com.samples.storage.playground.ui.SdkExtensionDetails
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)

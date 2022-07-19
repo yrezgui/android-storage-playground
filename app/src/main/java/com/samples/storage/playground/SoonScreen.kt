@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground
+package com.samples.storage.playground
 
-import android.app.Application
-import coil.ImageLoader
-import coil.ImageLoaderFactory
-import coil.decode.VideoFrameDecoder
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
-class StoragePlaygroundApplication : Application(), ImageLoaderFactory {
-
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader.Builder(this)
-            .components {
-                add(VideoFrameDecoder.Factory())
-            }
-            .crossfade(true)
-            .build()
-    }
+@Composable
+fun SoonScreen() {
+    Text("Available soon...", Modifier.fillMaxWidth())
 }

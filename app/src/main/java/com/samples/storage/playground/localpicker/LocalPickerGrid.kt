@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground.localpicker
+package com.samples.storage.playground.localpicker
 
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground
+package com.samples.storage.playground
 
 import android.annotation.SuppressLint
 import android.os.Build

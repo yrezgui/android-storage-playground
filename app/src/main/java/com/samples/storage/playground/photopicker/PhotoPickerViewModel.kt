@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground.photopicker
+package com.samples.storage.playground.photopicker
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -25,8 +25,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.storage.playground.DeviceManager
-import com.example.storage.playground.DeviceManager.Companion.getDeviceInfo
+import com.samples.storage.playground.DeviceManager
+import com.samples.storage.playground.DeviceManager.Companion.getDeviceInfo
 
 class PhotoPickerViewModel : ViewModel() {
     sealed interface PlatformMaxItemsLimit {

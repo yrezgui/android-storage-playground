@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.storage.playground.localpicker
+package com.samples.storage.playground.localpicker
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_IMAGES
