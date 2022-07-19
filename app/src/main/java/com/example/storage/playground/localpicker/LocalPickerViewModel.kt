@@ -18,7 +18,9 @@ package com.example.storage.playground.localpicker
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +42,7 @@ class LocalPickerViewModel(application: Application) : AndroidViewModel(applicat
         get() = getApplication()
 
     private val mediaRepository = MediaRepository(context)
+    val requiredPermissions = mediaRepository.requiredPermissions.toTypedArray()
 
     data class UiState(
         val deviceInfo: DeviceManager.DeviceInfo = getDeviceInfo(),
@@ -54,6 +57,19 @@ class LocalPickerViewModel(application: Application) : AndroidViewModel(applicat
 
     fun reset() {
         uiState = UiState()
+    }
+
+    fun hasStorageAccess(): Boolean {
+        return mediaRepository.hasStorageAccess()
+    }
+
+    fun createSettingsIntent(): Intent {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            data = Uri.fromParts("package", context.packageName, null)
+        }
+
+        return intent
     }
 
     fun onMaxItemsLimitChange(newValue: Float) {

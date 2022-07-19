@@ -16,21 +16,43 @@
 
 package com.example.storage.playground.localpicker
 
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.READ_MEDIA_IMAGES
+import android.Manifest.permission.READ_MEDIA_VIDEO
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns.DATE_ADDED
 import android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE
 import android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
 import android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
 import android.provider.MediaStore.Files.FileColumns._ID
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.flow
 
-class MediaRepository(context: Context) {
-    private val contentResolver = context.contentResolver
+class MediaRepository(private val context: Context) {
+    private val contentResolver: ContentResolver
+        get() = context.contentResolver
+
+    val requiredPermissions by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(READ_MEDIA_IMAGES, READ_MEDIA_VIDEO)
+        } else {
+            listOf(READ_EXTERNAL_STORAGE)
+        }
+    }
 
     enum class FileType {
         Image, Video, ImageAndVideo
+    }
+
+    fun hasStorageAccess(): Boolean {
+        return requiredPermissions.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
     }
 
     fun fetchVisualMediaUris(fileType: FileType) = flow {

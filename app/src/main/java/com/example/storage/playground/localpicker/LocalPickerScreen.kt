@@ -16,7 +16,10 @@
 
 package com.example.storage.playground.localpicker
 
+import android.app.Activity
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,8 +38,11 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -45,15 +51,23 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -73,8 +87,11 @@ fun LocalPickerScreen(
 ) {
     val state = viewModel.uiState
     val device = state.deviceInfo
+    var showStorageRationaleModal by remember { mutableStateOf(false) }
+    var showDeniedStoragePermissionModal by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
+    val activity = (LocalView.current.context as Activity)
     val internalPhotoPickerState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
     fun launchLocalPicker() {
@@ -84,11 +101,55 @@ fun LocalPickerScreen(
         }
     }
 
+    val requestPermissions = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
+        val permission = viewModel.requiredPermissions.first()
+
+        if (viewModel.hasStorageAccess()) {
+            launchLocalPicker()
+        } else {
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+                showDeniedStoragePermissionModal = true
+            }
+        }
+    }
+
+    fun canLaunchLocalPicker() {
+        val permission = viewModel.requiredPermissions.first()
+
+        if (viewModel.hasStorageAccess()) {
+            launchLocalPicker()
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+            showStorageRationaleModal = true
+        } else {
+            requestPermissions.launch(viewModel.requiredPermissions)
+        }
+    }
+
     fun onPickerSelection(uris: List<Uri>) {
         coroutineScope.launch {
             internalPhotoPickerState.hide()
             viewModel.onMultipleItemsSelect(uris)
         }
+    }
+
+    if (showStorageRationaleModal) {
+        StoragePermissionExplanationDialog(
+            onConfirm = {
+                showStorageRationaleModal = false
+                requestPermissions.launch(viewModel.requiredPermissions)
+            },
+            onDismiss = { showStorageRationaleModal = false }
+        )
+    }
+
+    if (showDeniedStoragePermissionModal) {
+        DeniedStoragePermissionSettingsDialog(
+            onConfirm = {
+                showDeniedStoragePermissionModal = false
+                activity.startActivity(viewModel.createSettingsIntent())
+            },
+            onDismiss = { showDeniedStoragePermissionModal = false }
+        )
     }
 
     ModalBottomSheetLayout(
@@ -120,7 +181,7 @@ fun LocalPickerScreen(
                 BottomNavigationBar(navController)
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = { launchLocalPicker() }) {
+                FloatingActionButton(onClick = { canLaunchLocalPicker() }) {
                     Icon(Icons.Filled.Add, "Select from gallery")
                 }
             }
@@ -238,5 +299,57 @@ fun MaxSelectableItemsSlider(
         modifier = modifier
             .padding(horizontal = 10.dp)
             .width(200.dp)
+    )
+}
+
+@Composable
+fun StoragePermissionExplanationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Storage access") },
+        text = { Text("This playground would like access to your media files to be able select them in the local picker") },
+        icon = {
+            Icon(
+                Icons.Filled.Folder,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.surfaceTint
+            )
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Continue")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Dismiss")
+            }
+        }
+    )
+}
+
+@Composable
+fun DeniedStoragePermissionSettingsDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Storage access") },
+        text = { Text("This playground would like access to your media files to be able select them in the local picker") },
+        icon = {
+            Icon(
+                Icons.Filled.Folder,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.surfaceTint
+            )
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Go to Settings")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Dismiss")
+            }
+        }
     )
 }
