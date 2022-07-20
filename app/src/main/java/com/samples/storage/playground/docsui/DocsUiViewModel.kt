@@ -16,15 +16,20 @@
 
 package com.samples.storage.playground.docsui
 
+import android.app.Application
+import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import com.samples.storage.playground.DeviceManager
-import com.samples.storage.playground.DeviceManager.Companion.getDeviceInfo
+import com.samples.storage.playground.DeviceManager.getDeviceInfo
 
-class DocsUiViewModel : ViewModel() {
+class DocsUiViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val context: Context
+        get() = getApplication()
 
     enum class MaxItemsLimit {
         Single, Unlimited
@@ -52,7 +57,7 @@ class DocsUiViewModel : ViewModel() {
     }
 
     data class UiState(
-        val deviceInfo: DeviceManager.DeviceInfo = getDeviceInfo(),
+        val deviceInfo: DeviceManager.DeviceInfo,
         val docsUiIntent: DocsUiIntent = DocsUiIntent.GET_CONTENT,
         val fileTypeFilter: FileType = FileType.All,
         val maxItemsLimit: MaxItemsLimit = MaxItemsLimit.Unlimited,
@@ -62,11 +67,11 @@ class DocsUiViewModel : ViewModel() {
             get() = fileTypeFilter.getMimeType()
     }
 
-    var uiState by mutableStateOf(UiState())
+    var uiState by mutableStateOf(UiState(deviceInfo = getDeviceInfo(context)))
         private set
 
     fun reset() {
-        uiState = UiState()
+        uiState = UiState(deviceInfo = getDeviceInfo(context))
     }
 
     fun onDocsUiIntentChange(newValue: DocsUiIntent) {

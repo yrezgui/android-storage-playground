@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.samples.storage.playground.GetContent
+import com.samples.storage.playground.GetMultipleContents
 import com.samples.storage.playground.docsui.DocsUiViewModel.DocsUiIntent
 import com.samples.storage.playground.docsui.DocsUiViewModel.FileType
 import com.samples.storage.playground.docsui.DocsUiViewModel.MaxItemsLimit
@@ -63,8 +65,6 @@ import com.samples.storage.playground.ui.AndroidDetails
 import com.samples.storage.playground.ui.BottomNavigationBar
 import com.samples.storage.playground.ui.ScreenTitle
 import com.samples.storage.playground.ui.SdkExtensionDetails
-import com.samples.storage.playground.GetContent
-import com.samples.storage.playground.GetMultipleContents
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

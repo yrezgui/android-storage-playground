@@ -26,9 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.samples.storage.playground.localpicker.MediaRepository.FileType
 import com.samples.storage.playground.DeviceManager
-import com.samples.storage.playground.DeviceManager.Companion.getDeviceInfo
+import com.samples.storage.playground.DeviceManager.getDeviceInfo
+import com.samples.storage.playground.localpicker.MediaRepository.FileType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -45,18 +45,18 @@ class LocalPickerViewModel(application: Application) : AndroidViewModel(applicat
     val requiredPermissions = mediaRepository.requiredPermissions.toTypedArray()
 
     data class UiState(
-        val deviceInfo: DeviceManager.DeviceInfo = getDeviceInfo(),
+        val deviceInfo: DeviceManager.DeviceInfo,
         val fileTypeFilter: FileType = FileType.ImageAndVideo,
         val maxItemsLimit: Int = PICKER_MAX_ITEMS_LIMIT,
         val localMediaUris: List<Uri> = emptyList(),
         val selectedItems: List<Uri> = emptyList()
     )
 
-    var uiState by mutableStateOf(UiState())
+    var uiState by mutableStateOf(UiState(deviceInfo = getDeviceInfo(context)))
         private set
 
     fun reset() {
-        uiState = UiState()
+        uiState = UiState(deviceInfo = getDeviceInfo(context))
     }
 
     fun hasStorageAccess(): Boolean {

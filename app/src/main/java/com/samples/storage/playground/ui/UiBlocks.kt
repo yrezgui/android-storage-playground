@@ -23,8 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.NavHostController
-import com.samples.storage.playground.Routes
 import com.samples.storage.playground.DeviceManager
+import com.samples.storage.playground.Routes
 
 @Composable
 fun ScreenTitle(title: String) {
@@ -38,10 +38,17 @@ fun AndroidDetails(device: DeviceManager.DeviceInfo) {
 
 @Composable
 fun SdkExtensionDetails(device: DeviceManager.DeviceInfo) {
-    when (device.sdkExtensionApi30) {
-        DeviceManager.SdkExtension.NotFound -> Text("SDK Extension (R) not found")
-        is DeviceManager.SdkExtension.Version -> Text("SDK Extension (R) version ${device.sdkExtensionApi30.value}")
+    val details = buildString {
+        when (device.sdkExtensionApi30) {
+            DeviceManager.SdkExtension.NotFound -> append("SDK Extension (R) not found")
+            is DeviceManager.SdkExtension.Version -> append("SDK Extension (R) version ${device.sdkExtensionApi30.value}")
+        }
+
+        append(" - ")
+        append("MediaProvider ${device.mediaProviderVersion}")
     }
+
+    Text(details)
 }
 
 @Composable

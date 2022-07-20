@@ -17,6 +17,8 @@
 package com.samples.storage.playground.photopicker
 
 import android.annotation.SuppressLint
+import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
@@ -24,11 +26,14 @@ import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import com.samples.storage.playground.DeviceManager
-import com.samples.storage.playground.DeviceManager.Companion.getDeviceInfo
+import com.samples.storage.playground.DeviceManager.getDeviceInfo
 
-class PhotoPickerViewModel : ViewModel() {
+class PhotoPickerViewModel(application: Application) : AndroidViewModel(application) {
+    private val context: Context
+        get() = getApplication()
+
     sealed interface PlatformMaxItemsLimit {
         @JvmInline
         value class Limit(val value: Int) : PlatformMaxItemsLimit
@@ -37,7 +42,7 @@ class PhotoPickerViewModel : ViewModel() {
     }
 
     data class UiState(
-        val deviceInfo: DeviceManager.DeviceInfo = getDeviceInfo(),
+        val deviceInfo: DeviceManager.DeviceInfo,
         val fileTypeFilter: VisualMediaType = PickVisualMedia.ImageAndVideo,
         val platformMaxItemsLimit: PlatformMaxItemsLimit,
         val chosenMaxItemsLimit: Int?,
@@ -56,6 +61,7 @@ class PhotoPickerViewModel : ViewModel() {
         }
 
         return UiState(
+            deviceInfo = getDeviceInfo(context),
             platformMaxItemsLimit = getPlatformMaxItems(),
             chosenMaxItemsLimit = maxItemsLimit
         )
