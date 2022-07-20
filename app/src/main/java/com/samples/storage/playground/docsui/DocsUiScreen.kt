@@ -60,7 +60,6 @@ import com.samples.storage.playground.GetContent
 import com.samples.storage.playground.GetMultipleContents
 import com.samples.storage.playground.docsui.DocsUiViewModel.DocsUiIntent
 import com.samples.storage.playground.docsui.DocsUiViewModel.FileType
-import com.samples.storage.playground.docsui.DocsUiViewModel.MaxItemsLimit
 import com.samples.storage.playground.ui.AndroidDetails
 import com.samples.storage.playground.ui.BottomNavigationBar
 import com.samples.storage.playground.ui.ScreenTitle
@@ -95,15 +94,17 @@ fun DocsUiScreen(navController: NavHostController, viewModel: DocsUiViewModel = 
     fun launchDocsUiPicker() {
         when (state.docsUiIntent) {
             DocsUiIntent.GET_CONTENT -> {
-                when (state.maxItemsLimit) {
-                    MaxItemsLimit.Single -> getContent.launch(state.mimeTypeFilter)
-                    MaxItemsLimit.Unlimited -> getMultipleContents.launch(state.mimeTypeFilter)
+                if (state.isMultiSelectEnabled) {
+                    getMultipleContents.launch(state.mimeTypeFilter)
+                } else {
+                    getContent.launch(state.mimeTypeFilter)
                 }
             }
             DocsUiIntent.OPEN_DOCUMENT -> {
-                when (state.maxItemsLimit) {
-                    MaxItemsLimit.Single -> openDocument.launch(state.mimeTypeFilter)
-                    MaxItemsLimit.Unlimited -> openMultipleDocuments.launch(state.mimeTypeFilter)
+                if (state.isMultiSelectEnabled) {
+                    openMultipleDocuments.launch(state.mimeTypeFilter)
+                } else {
+                    openDocument.launch(state.mimeTypeFilter)
                 }
             }
         }
@@ -165,8 +166,8 @@ fun DocsUiScreen(navController: NavHostController, viewModel: DocsUiViewModel = 
                 headlineText = { Text("Multiple items") },
                 trailingContent = {
                     MultipleItemsSwitch(
-                        state.maxItemsLimit,
-                        viewModel::onMaxItemsLimitChange
+                        state.isMultiSelectEnabled,
+                        viewModel::onMultiSelectChange
                     )
                 }
             )
@@ -287,8 +288,7 @@ fun FileTypeFilterChip(
 }
 
 @Composable
-fun MultipleItemsSwitch(value: MaxItemsLimit, onChange: (limit: MaxItemsLimit) -> Unit) {
-    val checked = value == MaxItemsLimit.Unlimited
+fun MultipleItemsSwitch(checked: Boolean, onChange: (checked: Boolean) -> Unit) {
     val icon: (@Composable () -> Unit)? = if (checked) {
         {
             Icon(
@@ -304,8 +304,6 @@ fun MultipleItemsSwitch(value: MaxItemsLimit, onChange: (limit: MaxItemsLimit) -
     Switch(
         checked = checked,
         thumbContent = icon,
-        onCheckedChange = { newValue ->
-            onChange(if (newValue) MaxItemsLimit.Unlimited else MaxItemsLimit.Single)
-        }
+        onCheckedChange = onChange
     )
 }

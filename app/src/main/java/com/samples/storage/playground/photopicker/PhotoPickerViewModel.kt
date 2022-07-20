@@ -45,6 +45,7 @@ class PhotoPickerViewModel(application: Application) : AndroidViewModel(applicat
         val deviceInfo: DeviceManager.DeviceInfo,
         val fileTypeFilter: VisualMediaType = PickVisualMedia.ImageAndVideo,
         val platformMaxItemsLimit: PlatformMaxItemsLimit,
+        val isMultiSelectEnabled: Boolean = true,
         val chosenMaxItemsLimit: Int?,
         val selectedItems: List<Uri> = emptyList()
     )
@@ -80,6 +81,10 @@ class PhotoPickerViewModel(application: Application) : AndroidViewModel(applicat
         } else {
             PlatformMaxItemsLimit.NoLimit
         }
+    }
+
+    fun onMultiSelectChange(newValue: Boolean) {
+        uiState = uiState.copy(isMultiSelectEnabled = newValue)
     }
 
     fun onMaxItemsLimitChange(newValue: Float) {

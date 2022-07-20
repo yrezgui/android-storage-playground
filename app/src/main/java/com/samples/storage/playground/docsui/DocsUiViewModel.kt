@@ -31,10 +31,6 @@ class DocsUiViewModel(application: Application) : AndroidViewModel(application) 
     private val context: Context
         get() = getApplication()
 
-    enum class MaxItemsLimit {
-        Single, Unlimited
-    }
-
     enum class FileType {
         All, Image, Video, Audio, ImageAndVideo, Pdf, Zip, Text;
 
@@ -60,7 +56,7 @@ class DocsUiViewModel(application: Application) : AndroidViewModel(application) 
         val deviceInfo: DeviceManager.DeviceInfo,
         val docsUiIntent: DocsUiIntent = DocsUiIntent.GET_CONTENT,
         val fileTypeFilter: FileType = FileType.All,
-        val maxItemsLimit: MaxItemsLimit = MaxItemsLimit.Unlimited,
+        val isMultiSelectEnabled: Boolean = true,
         val selectedItems: List<Uri> = emptyList()
     ) {
         val mimeTypeFilter: Array<String>
@@ -82,8 +78,8 @@ class DocsUiViewModel(application: Application) : AndroidViewModel(application) 
         uiState = uiState.copy(fileTypeFilter = newValue)
     }
 
-    fun onMaxItemsLimitChange(newValue: MaxItemsLimit) {
-        uiState = uiState.copy(maxItemsLimit = newValue)
+    fun onMultiSelectChange(newValue: Boolean) {
+        uiState = uiState.copy(isMultiSelectEnabled = newValue)
     }
 
     fun onItemSelect(item: Uri?) {

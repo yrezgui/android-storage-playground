@@ -35,6 +35,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.Divider
@@ -48,6 +49,8 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SmallTopAppBar
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -71,30 +74,21 @@ fun PhotoPickerScreen(
     val state = viewModel.uiState
     val device = state.deviceInfo
 
-    val maxSelectableItems = if (state.chosenMaxItemsLimit == null) {
-        Int.MAX_VALUE
-    } else if (state.chosenMaxItemsLimit < 2) {
-        2
-    } else {
-        state.chosenMaxItemsLimit
-    }
-
-
     val selectItem = rememberLauncherForActivityResult(
         PickVisualMedia(),
         viewModel::onItemSelect
     )
 
     val selectItems = rememberLauncherForActivityResult(
-        PickMultipleVisualMedia(maxSelectableItems),
+        PickMultipleVisualMedia(state.chosenMaxItemsLimit ?: Int.MAX_VALUE),
         viewModel::onMultipleItemsSelect
     )
 
     fun launchPhotoPicker() {
-        if (state.chosenMaxItemsLimit == 1) {
-            selectItem.launch(PickVisualMediaRequest(state.fileTypeFilter))
-        } else {
+        if (state.isMultiSelectEnabled) {
             selectItems.launch(PickVisualMediaRequest(state.fileTypeFilter))
+        } else {
+            selectItem.launch(PickVisualMediaRequest(state.fileTypeFilter))
         }
     }
 
@@ -146,13 +140,14 @@ fun PhotoPickerScreen(
                     MaxSelectableItemsSlider(
                         chosenMaxItemsLimit = state.chosenMaxItemsLimit,
                         platformMaxItemsLimit = state.platformMaxItemsLimit,
+                        enabled = state.isMultiSelectEnabled,
                         onChange = viewModel::onMaxItemsLimitChange
                     )
                 },
                 trailingContent = {
-                    MaxItemsLabel(
-                        state.chosenMaxItemsLimit,
-                        state.platformMaxItemsLimit
+                    MultipleItemsSwitch(
+                        state.isMultiSelectEnabled,
+                        viewModel::onMultiSelectChange
                     )
                 }
             )
@@ -229,41 +224,63 @@ fun FileTypeFilterChip(
 }
 
 @Composable
-fun MaxSelectableItemsSlider(
-    chosenMaxItemsLimit: Int?,
-    platformMaxItemsLimit: PlatformMaxItemsLimit,
-    onChange: (newValue: Float) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    if (platformMaxItemsLimit is PlatformMaxItemsLimit.Limit) {
-        Slider(
-            value = chosenMaxItemsLimit!!.toFloat(),
-            onValueChange = onChange,
-            valueRange = 1f..platformMaxItemsLimit.value.toFloat(),
-            modifier = modifier
-                .padding(horizontal = 10.dp)
-                .width(200.dp)
-        )
+fun MultipleItemsSwitch(checked: Boolean, onChange: (checked: Boolean) -> Unit) {
+    val icon: (@Composable () -> Unit)? = if (checked) {
+        {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = null,
+                modifier = Modifier.size(SwitchDefaults.IconSize),
+            )
+        }
     } else {
-        Slider(
-            enabled = false,
-            value = 0f,
-            onValueChange = onChange,
-            valueRange = 1f..100f,
-            modifier = modifier
-                .padding(horizontal = 10.dp)
-                .width(200.dp)
-        )
+        null
     }
+
+    Switch(
+        checked = checked,
+        thumbContent = icon,
+        onCheckedChange = onChange
+    )
 }
 
 @Composable
-fun MaxItemsLabel(chosenMaxItemsLimit: Int?, platformMaxItemsLimit: PlatformMaxItemsLimit) {
-    val label = if (platformMaxItemsLimit is PlatformMaxItemsLimit.Limit) {
-        chosenMaxItemsLimit.toString()
-    } else {
-        "∞"
-    }
+fun MaxSelectableItemsSlider(
+    chosenMaxItemsLimit: Int?,
+    platformMaxItemsLimit: PlatformMaxItemsLimit,
+    enabled: Boolean,
+    onChange: (newValue: Float) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (platformMaxItemsLimit is PlatformMaxItemsLimit.Limit) {
+            Slider(
+                enabled = enabled,
+                value = chosenMaxItemsLimit!!.toFloat(),
+                onValueChange = onChange,
+                valueRange = 2f..platformMaxItemsLimit.value.toFloat(),
+                modifier = modifier
+                    .padding(horizontal = 10.dp)
+                    .width(200.dp)
+            )
+        } else {
+            Slider(
+                enabled = enabled,
+                value = 100f,
+                onValueChange = onChange,
+                valueRange = 2f..100f,
+                modifier = modifier
+                    .padding(horizontal = 10.dp)
+                    .width(200.dp)
+            )
+        }
 
-    Text(label)
+        if (enabled) {
+            if (platformMaxItemsLimit is PlatformMaxItemsLimit.Limit) {
+                Text(chosenMaxItemsLimit.toString())
+            } else {
+                Text("∞")
+            }
+        }
+    }
 }
