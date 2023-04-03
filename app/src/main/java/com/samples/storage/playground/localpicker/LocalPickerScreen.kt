@@ -32,15 +32,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -52,16 +48,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -79,7 +78,7 @@ import com.samples.storage.playground.ui.ScreenTitle
 import com.samples.storage.playground.ui.SdkExtensionDetails
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LocalPickerScreen(
     navController: NavHostController,
@@ -92,13 +91,13 @@ fun LocalPickerScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val activity = (LocalView.current.context as Activity)
-    val internalPhotoPickerState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
 
     fun launchLocalPicker() {
         viewModel.loadLocalPickerPictures()
-        coroutineScope.launch {
-            internalPhotoPickerState.animateTo(ModalBottomSheetValue.Expanded)
-        }
+        openBottomSheet = true
     }
 
     val requestPermissions = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
@@ -127,8 +126,12 @@ fun LocalPickerScreen(
 
     fun onPickerSelection(uris: List<Uri>) {
         coroutineScope.launch {
-            internalPhotoPickerState.hide()
             viewModel.onMultipleItemsSelect(uris)
+            bottomSheetState.hide()
+        }.invokeOnCompletion {
+            if (!bottomSheetState.isVisible) {
+                openBottomSheet = false
+            }
         }
     }
 
@@ -152,87 +155,87 @@ fun LocalPickerScreen(
         )
     }
 
-    ModalBottomSheetLayout(
-        sheetState = internalPhotoPickerState,
-        sheetContent = {
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { ScreenTitle("Local Picker") },
+                actions = {
+                    IconButton(onClick = { viewModel.reset() }) {
+                        Icon(
+                            imageVector = Icons.Filled.RestartAlt,
+                            contentDescription = "Reset picker configuration"
+                        )
+                    }
+                })
+        },
+        bottomBar = {
+            BottomNavigationBar(navController)
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { canLaunchLocalPicker() }) {
+                Icon(Icons.Filled.Add, "Select from gallery")
+            }
+        }
+    ) { paddingValues ->
+        Column(
+            Modifier
+                .padding(paddingValues)
+        ) {
+            ListItem(
+                headlineContent = { AndroidDetails(device) },
+                supportingContent = { SdkExtensionDetails(device) },
+            )
+            Divider()
+            ListItem(
+                headlineContent = { Text("File type filter") },
+                supportingContent = {
+                    FileTypeFilterInput(
+                        state.fileTypeFilter,
+                        viewModel::onFileTypeFilterChange
+                    )
+                },
+            )
+            Divider()
+            ListItem(
+                headlineContent = { Text("Max item(s)") },
+                supportingContent = {
+                    MaxSelectableItemsSlider(
+                        maxItemsLimit = state.maxItemsLimit,
+                        onChange = viewModel::onMaxItemsLimitChange
+                    )
+                },
+                trailingContent = {
+                    Text(state.maxItemsLimit.toString())
+                }
+            )
+            LazyVerticalGrid(
+                modifier = Modifier.fillMaxSize(),
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(1.dp),
+                verticalArrangement = Arrangement.spacedBy(1.dp)
+            ) {
+                items(state.selectedItems) {
+                    AsyncImage(
+                        model = it,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.aspectRatio(1f)
+                    )
+                }
+            }
+        }
+    }
+
+    if (openBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { openBottomSheet = false },
+            sheetState = bottomSheetState,
+        ) {
             LocalPickerGrid(
                 modifier = Modifier.fillMaxSize(),
                 entries = state.localMediaUris,
                 limit = state.maxItemsLimit,
                 onSelect = ::onPickerSelection
             )
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                SmallTopAppBar(
-                    title = { ScreenTitle("Local Picker") },
-                    actions = {
-                        IconButton(onClick = { viewModel.reset() }) {
-                            Icon(
-                                imageVector = Icons.Filled.RestartAlt,
-                                contentDescription = "Reset picker configuration"
-                            )
-                        }
-                    }
-                )
-            },
-            bottomBar = {
-                BottomNavigationBar(navController)
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = { canLaunchLocalPicker() }) {
-                    Icon(Icons.Filled.Add, "Select from gallery")
-                }
-            }
-        ) { paddingValues ->
-            Column(
-                Modifier
-                    .padding(paddingValues)
-            ) {
-                ListItem(
-                    headlineText = { AndroidDetails(device) },
-                    supportingText = { SdkExtensionDetails(device) },
-                )
-                Divider()
-                ListItem(
-                    headlineText = { Text("File type filter") },
-                    supportingText = {
-                        FileTypeFilterInput(
-                            state.fileTypeFilter,
-                            viewModel::onFileTypeFilterChange
-                        )
-                    },
-                )
-                Divider()
-                ListItem(
-                    headlineText = { Text("Max item(s)") },
-                    supportingText = {
-                        MaxSelectableItemsSlider(
-                            maxItemsLimit = state.maxItemsLimit,
-                            onChange = viewModel::onMaxItemsLimitChange
-                        )
-                    },
-                    trailingContent = {
-                        Text(state.maxItemsLimit.toString())
-                    }
-                )
-                LazyVerticalGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Fixed(3),
-                    horizontalArrangement = Arrangement.spacedBy(1.dp),
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    items(state.selectedItems) {
-                        AsyncImage(
-                            model = it,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.aspectRatio(1f)
-                        )
-                    }
-                }
-            }
         }
     }
 }
@@ -274,7 +277,7 @@ fun FileTypeFilterChip(
         selected = filter == value,
         onClick = { onClick(filter) },
         label = { Text(filter.toString()) },
-        selectedIcon = {
+        leadingIcon = {
             if (filter == value) {
                 Icon(
                     imageVector = Icons.Filled.Done,

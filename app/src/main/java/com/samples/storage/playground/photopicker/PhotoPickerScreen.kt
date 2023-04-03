@@ -16,11 +16,13 @@
 
 package com.samples.storage.playground.photopicker
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,13 +48,19 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -62,6 +70,7 @@ import coil.compose.AsyncImage
 import com.samples.storage.playground.photopicker.PhotoPickerViewModel.PlatformMaxItemsLimit
 import com.samples.storage.playground.ui.AndroidDetails
 import com.samples.storage.playground.ui.BottomNavigationBar
+import com.samples.storage.playground.ui.MediaViewer
 import com.samples.storage.playground.ui.ScreenTitle
 import com.samples.storage.playground.ui.SdkExtensionDetails
 
@@ -73,6 +82,9 @@ fun PhotoPickerScreen(
 ) {
     val state = viewModel.uiState
     val device = state.deviceInfo
+    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    var viewedItem by rememberSaveable { mutableStateOf<Uri?>(null) }
 
     val selectItem = rememberLauncherForActivityResult(
         PickVisualMedia(),
@@ -92,9 +104,14 @@ fun PhotoPickerScreen(
         }
     }
 
+    fun viewItem(uri: Uri) {
+        viewedItem = uri
+        openBottomSheet = true
+    }
+
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = { ScreenTitle("Photo Picker") },
                 actions = {
                     IconButton(onClick = { viewModel.reset() }) {
@@ -120,13 +137,13 @@ fun PhotoPickerScreen(
                 .padding(paddingValues)
         ) {
             ListItem(
-                headlineText = { AndroidDetails(device) },
-                supportingText = { SdkExtensionDetails(device) },
+                headlineContent = { AndroidDetails(device) },
+                supportingContent = { SdkExtensionDetails(device) },
             )
             Divider()
             ListItem(
-                headlineText = { Text("File type filter") },
-                supportingText = {
+                headlineContent = { Text("File type filter") },
+                supportingContent = {
                     FileTypeFilterInput(
                         state.fileTypeFilter,
                         viewModel::onFileTypeFilterChange
@@ -135,8 +152,8 @@ fun PhotoPickerScreen(
             )
             Divider()
             ListItem(
-                headlineText = { Text("Max item(s)") },
-                supportingText = {
+                headlineContent = { Text("Max item(s)") },
+                supportingContent = {
                     MaxSelectableItemsSlider(
                         chosenMaxItemsLimit = state.chosenMaxItemsLimit,
                         platformMaxItemsLimit = state.platformMaxItemsLimit,
@@ -157,15 +174,27 @@ fun PhotoPickerScreen(
                 horizontalArrangement = Arrangement.spacedBy(1.dp),
                 verticalArrangement = Arrangement.spacedBy(1.dp)
             ) {
-                items(state.selectedItems) {
+                items(state.selectedItems) { uri ->
                     AsyncImage(
-                        model = it,
+                        model = uri,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.aspectRatio(1f)
+                        modifier = Modifier.aspectRatio(1f).clickable { viewItem(uri) }
                     )
                 }
             }
+        }
+    }
+
+    if (openBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { openBottomSheet = false },
+            sheetState = bottomSheetState,
+        ) {
+            MediaViewer(
+                modifier = Modifier.fillMaxSize(),
+                uri = viewedItem
+            )
         }
     }
 }
@@ -211,7 +240,7 @@ fun FileTypeFilterChip(
         selected = filter == value,
         onClick = { onClick(filter) },
         label = { Text(label) },
-        selectedIcon = {
+        leadingIcon = {
             if (filter == value) {
                 Icon(
                     imageVector = Icons.Filled.Done,
