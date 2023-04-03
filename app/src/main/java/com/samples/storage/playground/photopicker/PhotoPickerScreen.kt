@@ -48,10 +48,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -94,7 +94,7 @@ fun PhotoPickerScreen(
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = { ScreenTitle("Photo Picker") },
                 actions = {
                     IconButton(onClick = { viewModel.reset() }) {
@@ -120,13 +120,13 @@ fun PhotoPickerScreen(
                 .padding(paddingValues)
         ) {
             ListItem(
-                headlineText = { AndroidDetails(device) },
-                supportingText = { SdkExtensionDetails(device) },
+                headlineContent = { AndroidDetails(device) },
+                supportingContent = { SdkExtensionDetails(device) },
             )
             Divider()
             ListItem(
-                headlineText = { Text("File type filter") },
-                supportingText = {
+                headlineContent = { Text("File type filter") },
+                supportingContent = {
                     FileTypeFilterInput(
                         state.fileTypeFilter,
                         viewModel::onFileTypeFilterChange
@@ -135,8 +135,8 @@ fun PhotoPickerScreen(
             )
             Divider()
             ListItem(
-                headlineText = { Text("Max item(s)") },
-                supportingText = {
+                headlineContent = { Text("Max item(s)") },
+                supportingContent = {
                     MaxSelectableItemsSlider(
                         chosenMaxItemsLimit = state.chosenMaxItemsLimit,
                         platformMaxItemsLimit = state.platformMaxItemsLimit,
@@ -211,7 +211,7 @@ fun FileTypeFilterChip(
         selected = filter == value,
         onClick = { onClick(filter) },
         label = { Text(label) },
-        selectedIcon = {
+        leadingIcon = {
             if (filter == value) {
                 Icon(
                     imageVector = Icons.Filled.Done,

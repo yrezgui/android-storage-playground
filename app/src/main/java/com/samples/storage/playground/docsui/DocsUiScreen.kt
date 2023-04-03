@@ -44,10 +44,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -112,8 +112,7 @@ fun DocsUiScreen(navController: NavHostController, viewModel: DocsUiViewModel = 
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(
-                title = { ScreenTitle("Docs UI") },
+            TopAppBar(title = { ScreenTitle("Docs UI") },
                 actions = {
                     IconButton(onClick = { viewModel.reset() }) {
                         Icon(
@@ -121,8 +120,7 @@ fun DocsUiScreen(navController: NavHostController, viewModel: DocsUiViewModel = 
                             contentDescription = "Reset picker configuration"
                         )
                     }
-                }
-            )
+                })
         },
         bottomBar = {
             BottomNavigationBar(navController)
@@ -138,13 +136,13 @@ fun DocsUiScreen(navController: NavHostController, viewModel: DocsUiViewModel = 
                 .padding(paddingValues)
         ) {
             ListItem(
-                headlineText = { AndroidDetails(device) },
-                supportingText = { SdkExtensionDetails(device) },
+                headlineContent = { AndroidDetails(device) },
+                supportingContent = { SdkExtensionDetails(device) },
             )
             Divider()
             ListItem(
-                headlineText = { Text("DocsUI Intent") },
-                supportingText = {
+                headlineContent = { Text("DocsUI Intent") },
+                supportingContent = {
                     DocsUiIntentInput(
                         state.docsUiIntent,
                         viewModel::onDocsUiIntentChange
@@ -153,8 +151,8 @@ fun DocsUiScreen(navController: NavHostController, viewModel: DocsUiViewModel = 
             )
             Divider()
             ListItem(
-                headlineText = { Text("File type filter") },
-                supportingText = {
+                headlineContent = { Text("File type filter") },
+                supportingContent = {
                     FileTypeFilterInput(
                         state.fileTypeFilter,
                         viewModel::onFileTypeFilterChange
@@ -163,7 +161,7 @@ fun DocsUiScreen(navController: NavHostController, viewModel: DocsUiViewModel = 
             )
             Divider()
             ListItem(
-                headlineText = { Text("Multiple items") },
+                headlineContent = { Text("Multiple items") },
                 trailingContent = {
                     MultipleItemsSwitch(
                         state.isMultiSelectEnabled,
@@ -222,7 +220,7 @@ fun DocsUiIntentChip(
         selected = intent == value,
         onClick = { onClick(intent) },
         label = { Text(intent.toString()) },
-        selectedIcon = {
+        leadingIcon = {
             if (intent == value) {
                 Icon(
                     imageVector = Icons.Filled.Done,
@@ -275,7 +273,7 @@ fun FileTypeFilterChip(
         selected = filter == value,
         onClick = { onClick(filter) },
         label = { Text(filter.toString()) },
-        selectedIcon = {
+        leadingIcon = {
             if (filter == value) {
                 Icon(
                     imageVector = Icons.Filled.Done,

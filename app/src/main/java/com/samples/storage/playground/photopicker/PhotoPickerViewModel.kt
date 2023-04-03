@@ -22,6 +22,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.isPhotoPickerAvailable
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,7 +77,7 @@ class PhotoPickerViewModel(application: Application) : AndroidViewModel(applicat
     private fun getPlatformMaxItems(): PlatformMaxItemsLimit {
         // If the photo picker is available on the device, getPickImagesMaxLimit is there but not
         // always visible on the SDK (only from Android 13+)
-        return if (PickVisualMedia.isPhotoPickerAvailable()) {
+        return if (isPhotoPickerAvailable(context)) {
             PlatformMaxItemsLimit.Limit(MediaStore.getPickImagesMaxLimit())
         } else {
             PlatformMaxItemsLimit.NoLimit
